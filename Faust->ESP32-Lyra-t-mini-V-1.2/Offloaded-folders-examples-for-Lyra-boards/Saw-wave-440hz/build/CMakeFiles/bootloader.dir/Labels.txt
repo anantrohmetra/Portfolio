@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/CMakeFiles/bootloader
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/CMakeFiles/bootloader.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/CMakeFiles/bootloader-complete.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

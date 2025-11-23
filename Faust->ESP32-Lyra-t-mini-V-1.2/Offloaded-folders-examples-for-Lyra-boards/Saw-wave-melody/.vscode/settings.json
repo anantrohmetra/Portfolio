@@ -1,0 +1,13 @@
+{
+  "idf.port": "/dev/tty.usbserial-110",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32"
+  },
+  "clangd.path": "/Users/anantrohmetra/.espressif/tools/esp-clang/15.0.0-23786128ae/esp-clang/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=/Users/anantrohmetra/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
+    "--compile-commands-dir=/Users/anantrohmetra/esp/esp-adf/examples/get-started/faustcpp/build"
+  ],
+  "idf.flashType": "UART"
+}
