@@ -33,9 +33,9 @@ Choose Storage : "Select your SD Card"
 
 Now while in the settings section please put the information as below:
 
-![][image1]  
-![][image2]  
-![][image3]
+![Setup Screenshot](Images/image1.png)
+![Network Setup](Images/image2.png)
+![SSH Key](Images/image3.png)
 
 Tick set hostname   
 Fill in: pizero // this makes an alias for the IP address of the pi by the name of pizero.local
@@ -75,7 +75,7 @@ It might ask you for a password.
 
 Now you can access the pi using your laptop.
 
-![][image4]
+![Terminal SSH](Images/image4.png)
 
 Now is a good time to solder the PCM5122 audio board onto the raspberry pi. You can reference the pin diagrams in the hardware section to make the right connections. There is also a picture of how the boards look once soldered. Once this is done place the heat sink on the raspberry pi 0 side which is exposed. Apply the heat sink as shown in the image heatsink placement. This will absorb the heat from the Raspberry pi.
 
@@ -192,7 +192,9 @@ enable\_uart=1 // // add it under \[all\]
 dtparam=i2c\_arm\_baudrate=400000 // add it under \[all\]
 
 Below is an image of the config file for your reference.  
-![][image5]  
+
+![Config.txt](Images/image5.png)
+
 Once you have made the above changes, hit Ctrl \+X (Exit), Ctrl \+ S(Save) and hit enter. You will exit the config file  
            
 Now reboot your computer:
