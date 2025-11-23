@@ -193,7 +193,8 @@ dtparam=i2c\_arm\_baudrate=400000 // add it under \[all\]
 
 Below is an image of the config file for your reference.  
 
-![Config.txt](Images/image5.png)
+![Config.txt](Theremin/Software/Images/image5.png)
+
 
 Once you have made the above changes, hit Ctrl \+X (Exit), Ctrl \+ S(Save) and hit enter. You will exit the config file  
            
