@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brahma FIELD 4 A-format to B-format Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h3::before {
+            content: "📁";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .section.calibration h3::before { content: "⚙️"; }
+        .section.input h3::before { content: "🎵"; }
+        .section.output h3::before { content: "💾"; }
+        .section.options h3::before { content: "🔧"; }
+
+        .file-input-group {
+            margin-bottom: 15px;
+        }
+
+        .file-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .file-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .calibration-grid {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .cal-status {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .cal-success { color: #28a745; }
+        .cal-error { color: #dc3545; }
+
+        .cal-info {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .convert-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .convert-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .convert-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .log-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .log-container {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-info { color: #0c5460; }
+        .log-success { color: #155724; font-weight: bold; }
+        .log-error { color: #721c24; font-weight: bold; }
+        .log-warning { color: #856404; }
+
+        .download-section {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .download-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box h4 {
+            color: #1976D2;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Brahma FIELD 4 Converter</h1>
+            <p>Convert A-format recordings to B-format ambisonics</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <h4>📋 Instructions</h4>
+                <p>1. Load your FilterMatrix calibration files (all three sample rates)</p>
+                <p>2. Select your 4-channel A-format WAV recording (16-bit PCM recommended)</p>
+                <p>3. Click Convert to process and download your B-format file</p>
+            </div>
+
+            <div class="section calibration">
+                <h3>Calibration Files</h3>
+                <div class="file-input-group">
+                    <label for="cal44100">FilterMatrix_44100.wav:</label>
+                    <input type="file" id="cal44100" class="file-input" accept=".wav">
+                    <div id="cal44100-status" class="calibration-grid" style="display: none;"></div>
+                </div>
+                <div class="file-input-group">
+                    <label for="cal48000">FilterMatrix_48000.wav:</label>
+                    <input type="file" id="cal48000" class="file-input" accept=".wav">
+                    <div id="cal48000-status" class="calibration-grid" style="display: none;"></div>
+                </div>
+                <div class="file-input-group">
+                    <label for="cal96000">FilterMatrix_96000.wav:</label>
+                    <input type="file" id="cal96000" class="file-input" accept=".wav">
+                    <div id="cal96000-status" class="calibration-grid" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="section input">
+                <h3>Input A-format File</h3>
+                <div class="file-input-group">
+                    <label for="inputFile">4-channel A-format WAV recording (16-bit PCM):</label>
+                    <input type="file" id="inputFile" class="file-input" accept=".wav">
+                    <div id="input-status"></div>
+                </div>
+            </div>
+
+            <div class="section options">
+                <h3>Processing Options</h3>
+                <div class="options-grid">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="useFFT" checked>
+                        <label for="useFFT">Use FFT convolution (recommended for performance)</label>
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="showAnalysis">
+                        <label for="showAnalysis">Show detailed filter analysis</label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="convertButton" class="convert-button" disabled>
+                Convert A-format to B-format
+            </button>
+
+            <div id="progressSection" class="progress-section">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <div id="progressText" class="progress-text">Initializing...</div>
+            </div>
+
+            <div id="logSection" class="log-section">
+                <h3>📄 Processing Log</h3>
+                <div id="logContainer" class="log-container"></div>
+            </div>
+
+            <div id="downloadSection" class="download-section">
+                <a id="downloadButton" class="download-button" style="display: none;">
+                    <span>📥</span>
+                    Download B-format File
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM helpers + logging + progress ---
+
+        const byId = (id) => document.getElementById(id);
+
+        function log(message, type = 'info') {
+            const logSection = byId('logSection');
+            const logContainer = byId('logContainer');
+            logSection.style.display = 'block';
+
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function setProgress(percent, text) {
+            const section = byId('progressSection');
+            const fill = byId('progressFill');
+            const label = byId('progressText');
+            section.style.display = 'block';
+            fill.style.width = `${percent}%`;
+            label.textContent = text;
+        }
+
+        // --- WAV parsing (PCM16/24/32 + float32, from working version) ---
+
+        async function parseWAV(arrayBuffer) {
+            const view = new DataView(arrayBuffer);
+            const len = view.byteLength;
+
+            const fourCC = (o) =>
+                String.fromCharCode(
+                    view.getUint8(o),
+                    view.getUint8(o + 1),
+                    view.getUint8(o + 2),
+                    view.getUint8(o + 3)
+                );
+
+            if (fourCC(0) !== 'RIFF' || fourCC(8) !== 'WAVE') {
+                throw new Error('Not a RIFF/WAVE file');
+            }
+
+            let fmt = null;
+            let dataOfs = -1;
+            let dataSize = -1;
+            let o = 12;
+
+            while (o + 8 <= len) {
+                const id = fourCC(o);
+                const sz = view.getUint32(o + 4, true);
+                const st = o + 8;
+
+                if (id === 'fmt ') {
+                    fmt = {
+                        audioFormat: view.getUint16(st, true),
+                        numChannels: view.getUint16(st + 2, true),
+                        sampleRate: view.getUint32(st + 4, true),
+                        byteRate: view.getUint32(st + 8, true),
+                        blockAlign: view.getUint16(st + 12, true),
+                        bitsPerSample: view.getUint16(st + 14, true)
+                    };
+                } else if (id === 'data') {
+                    dataOfs = st;
+                    dataSize = sz;
+                }
+
+                o = st + sz + (sz % 2); // word aligned
+            }
+
+            if (!fmt) throw new Error('Missing fmt chunk');
+            if (dataOfs < 0) throw new Error('Missing data chunk');
+
+            const {
+                audioFormat,
+                numChannels,
+                sampleRate,
+                bitsPerSample
+            } = fmt;
+
+            const bytesPerSample = bitsPerSample >>> 3;
+            const frames = Math.floor(dataSize / (numChannels * bytesPerSample));
+
+            const channels = [];
+            for (let c = 0; c < numChannels; c++) {
+                channels[c] = new Float32Array(frames);
+            }
+
+            let pos = dataOfs;
+
+            const rdI16 = () => view.getInt16(pos, true);
+            const rdI24 = () => {
+                const b0 = view.getUint8(pos);
+                const b1 = view.getUint8(pos + 1);
+                const b2 = view.getUint8(pos + 2);
+                let v = (b2 << 16) | (b1 << 8) | b0;
+                if (v & 0x800000) v |= 0xff000000;
+                return v | 0;
+            };
+            const rdI32 = () => view.getInt32(pos, true);
+            const rdF32 = () => view.getFloat32(pos, true);
+
+            const isPCM = (audioFormat === 1);
+            const isF32 = (audioFormat === 3 && bitsPerSample === 32);
+
+            if (!(isPCM || isF32)) {
+                throw new Error(`Unsupported format code ${audioFormat}`);
+            }
+
+            for (let i = 0; i < frames; i++) {
+                for (let ch = 0; ch < numChannels; ch++) {
+                    let s;
+                    if (isF32) {
+                        s = rdF32();
+                    } else if (bitsPerSample === 16) {
+                        s = rdI16() / 32768;
+                    } else if (bitsPerSample === 24) {
+                        s = rdI24() / 8388608;
+                    } else if (bitsPerSample === 32) {
+                        s = rdI32() / 2147483648;
+                    } else {
+                        throw new Error(`Unsupported bit depth ${bitsPerSample}`);
+                    }
+                    channels[ch][i] = s;
+                    pos += bytesPerSample;
+                }
+            }
+
+            return {
+                sampleRate,
+                numberOfChannels: numChannels,
+                length: frames,
+                channelData: channels,
+                bitsPerSample,
+                audioFormat
+            };
+        }
+
+        // --- WAV writer (16-bit PCM with 0.8 headroom, from working version) ---
+
+        function writeWAVPCM16(channels, sampleRate) {
+            const C = channels.length;
+            const N = channels[0].length;
+            const bytesPerSample = 2;
+            const blockAlign = C * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = N * blockAlign;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            const writeString = (offset, str) => {
+                for (let i = 0; i < str.length; i++) {
+                    view.setUint8(offset + i, str.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, C, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            // global peak scaling with 0.8 headroom
+            let peak = 0;
+            for (let ch = 0; ch < C; ch++) {
+                const a = channels[ch];
+                for (let i = 0; i < N; i++) {
+                    const v = Math.abs(a[i]);
+                    if (v > peak) peak = v;
+                }
+            }
+            const scale = peak > 0 ? (0.8 * 32767) / peak : 32767;
+
+            let o = 44;
+            for (let i = 0; i < N; i++) {
+                for (let ch = 0; ch < C; ch++) {
+                    let s = channels[ch][i] * scale;
+                    if (s > 32767) s = 32767;
+                    if (s < -32768) s = -32768;
+                    view.setInt16(o, s, true);
+                    o += 2;
+                }
+            }
+
+            return buffer;
+        }
+
+        // --- FFT utilities & convolution (from working version) ---
+
+        function nextPow2(n) {
+            let p = 1;
+            while (p < n) p <<= 1;
+            return p;
+        }
+
+        function fft(re, im, inverse) {
+            const n = re.length;
+            let j = 0;
+
+            for (let i = 1; i < n; i++) {
+                let bit = n >> 1;
+                for (; j & bit; bit >>= 1) {
+                    j ^= bit;
+                }
+                j ^= bit;
+                if (i < j) {
+                    let tr = re[i]; re[i] = re[j]; re[j] = tr;
+                    tr = im[i]; im[i] = im[j]; im[j] = tr;
+                }
+            }
+
+            for (let len = 2; len <= n; len <<= 1) {
+                const ang = (inverse ? 2 : -2) * Math.PI / len;
+                const wlenr = Math.cos(ang), wleni = Math.sin(ang);
+
+                for (let i = 0; i < n; i += len) {
+                    let wr = 1, wi = 0;
+                    const half = len >> 1;
+                    for (let k = 0; k < half; k++) {
+                        const u_r = re[i + k], u_i = im[i + k];
+                        const v_r = re[i + k + half] * wr - im[i + k + half] * wi;
+                        const v_i = re[i + k + half] * wi + im[i + k + half] * wr;
+                        re[i + k] = u_r + v_r;
+                        im[i + k] = u_i + v_i;
+                        re[i + k + half] = u_r - v_r;
+                        im[i + k + half] = u_i - v_i;
+                        const nwr = wr * wlenr - wi * wleni;
+                        wi = wr * wleni + wi * wlenr;
+                        wr = nwr;
+                    }
+                }
+            }
+
+            if (inverse) {
+                for (let i = 0; i < n; i++) {
+                    re[i] /= n;
+                    im[i] /= n;
+                }
+            }
+        }
+
+        // simple time-domain convolution (same size)
+        function convolveSame(x, h) {
+            const n = x.length, m = h.length;
+            const out = new Float32Array(n);
+            const half = Math.floor(m / 2);
+            for (let i = 0; i < n; i++) {
+                let acc = 0;
+                const j0 = Math.max(0, i - half);
+                const j1 = Math.min(n - 1, i + (m - half - 1));
+                for (let j = j0; j <= j1; j++) {
+                    const k = j - i + half;
+                    acc += x[j] * h[k];
+                }
+                out[i] = acc;
+            }
+            return out;
+        }
+
+        // full 4x4 A→B via FFT overlap-save (from working version)
+        function a2bFFT(aChans, matrixIR) {
+            const N = aChans[0].length;
+            const M = matrixIR[0][0].length;
+            let NFFT = nextPow2(M + 1024);
+            let L = NFFT - (M - 1);
+            if (L <= 0) {
+                NFFT = nextPow2(M * 2);
+                L = NFFT - (M - 1);
+            }
+
+            const B = [
+                new Float32Array(N),
+                new Float32Array(N),
+                new Float32Array(N),
+                new Float32Array(N)
+            ];
+
+            // Precompute H for all 16 paths
+            const H = Array.from({ length: 4 }, () =>
+                Array.from({ length: 4 }, () => ({
+                    re: new Float64Array(NFFT),
+                    im: new Float64Array(NFFT)
+                }))
+            );
+
+            for (let b = 0; b < 4; b++) {
+                for (let a = 0; a < 4; a++) {
+                    const re = H[b][a].re;
+                    const im = H[b][a].im;
+                    const ir = matrixIR[b][a];
+
+                    let i = 0;
+                    for (; i < ir.length; i++) re[i] = ir[i];
+                    for (; i < NFFT; i++) re[i] = 0;
+                    for (let k = 0; k < NFFT; k++) im[k] = 0;
+
+                    fft(re, im, false);
+                }
+            }
+
+            const xre = new Float64Array(NFFT);
+            const xim = new Float64Array(NFFT);
+            const yre = new Float64Array(NFFT);
+            const yim = new Float64Array(NFFT);
+
+            const tails = Array.from({ length: 4 }, () => new Float32Array(M - 1));
+            const Lblk = NFFT - (M - 1);
+
+            for (let a = 0; a < 4; a++) {
+                const sig = aChans[a];
+                const tail = tails[a];
+
+                for (let pos = 0; pos < N; pos += Lblk) {
+                    const l = Math.min(Lblk, N - pos);
+
+                    // build block [tail | new]
+                    let k = 0;
+                    for (; k < tail.length; k++) {
+                        xre[k] = tail[k];
+                        xim[k] = 0;
+                    }
+                    for (let i = 0; i < l; i++, k++) {
+                        xre[k] = sig[pos + i];
+                        xim[k] = 0;
+                    }
+                    for (; k < NFFT; k++) {
+                        xre[k] = 0;
+                        xim[k] = 0;
+                    }
+
+                    fft(xre, xim, false);
+
+                    for (let b = 0; b < 4; b++) {
+                        const Hba = H[b][a];
+                        const out = B[b];
+
+                        for (let i = 0; i < NFFT; i++) {
+                            const a0 = xre[i], a1 = xim[i];
+                            const c = Hba.re[i], d = Hba.im[i];
+                            yre[i] = a0 * c - a1 * d;
+                            yim[i] = a0 * d + a1 * c;
+                        }
+
+                        fft(yre, yim, true);
+
+                        const skip = M - 1;
+                        for (let i = 0; i < l; i++) {
+                            out[pos + i] += yre[i + skip];
+                        }
+                    }
+
+                    // update tail for input channel
+                    if (l === Lblk) {
+                        const start = Lblk - (M - 1);
+                        for (let i = 0; i < M - 1; i++) {
+                            tail[i] = sig[pos + start + i];
+                        }
+                    } else {
+                        const buf = new Float32Array(tail.length + l);
+                        buf.set(tail, 0);
+                        buf.set(sig.subarray(pos, pos + l), tail.length);
+                        const start = buf.length - (M - 1);
+                        for (let i = 0; i < M - 1; i++) {
+                            tail[i] = start + i < buf.length ? buf[start + i] : 0;
+                        }
+                    }
+                }
+            }
+
+            return B;
+        }
+
+        // --- Main app class (UI = first version, logic = second version) ---
+
+        class BrahmaConverter {
+            constructor() {
+                this.calibration = {};
+                this.input = null;
+                this.processing = false;
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                ['cal44100', 'cal48000', 'cal96000'].forEach(id => {
+                    byId(id).addEventListener('change', e => this.loadCalibration(e.target, id));
+                });
+
+                byId('inputFile').addEventListener('change', e => this.loadInput(e.target));
+                byId('convertButton').addEventListener('click', () => this.startConversion());
+            }
+
+            async loadCalibration(input, id) {
+                const file = input.files && input.files[0];
+                const statusDiv = byId(`${id}-status`);
+
+                if (!file) {
+                    statusDiv.style.display = 'none';
+                    statusDiv.innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const buf = await file.arrayBuffer();
+                    const wav = await parseWAV(buf);
+
+                    if (wav.numberOfChannels !== 4) {
+                        throw new Error(`Expected 4 channels, got ${wav.numberOfChannels}`);
+                    }
+                    if (wav.length % 4 !== 0) {
+                        throw new Error(`Calibration length (${wav.length}) must be divisible by 4`);
+                    }
+
+                    const sr = parseInt(id.replace('cal', ''), 10);
+                    this.calibration[sr] = wav;
+
+                    statusDiv.style.display = 'grid';
+                    statusDiv.innerHTML = `
+                        <span class="cal-status cal-success">✓</span>
+                        <span>${file.name}</span>
+                        <span class="cal-info">
+                            ${wav.sampleRate} Hz, ${wav.length} samples, ${wav.numberOfChannels} ch, ${wav.bitsPerSample}-bit
+                        </span>
+                    `;
+
+                    log(`Calibration ${sr} Hz loaded successfully`, 'success');
+                } catch (err) {
+                    statusDiv.style.display = 'grid';
+                    statusDiv.innerHTML = `
+                        <span class="cal-status cal-error">✗</span>
+                        <span>${file.name}</span>
+                        <span class="cal-info">Error: ${err.message}</span>
+                    `;
+                    log(`Error loading ${id}: ${err.message}`, 'error');
+                }
+
+                this.updateButton();
+            }
+
+            async loadInput(input) {
+                const file = input.files && input.files[0];
+                const statusDiv = byId('input-status');
+
+                if (!file) {
+                    statusDiv.innerHTML = '';
+                    this.input = null;
+                    this.updateButton();
+                    return;
+                }
+
+                try {
+                    const buf = await file.arrayBuffer();
+                    const wav = await parseWAV(buf);
+
+                    if (wav.numberOfChannels !== 4) {
+                        throw new Error(`File must have 4 channels, found ${wav.numberOfChannels}`);
+                    }
+                    if (wav.audioFormat !== 1 || wav.bitsPerSample !== 16) {
+                        throw new Error('Input must be 16-bit PCM (format 1)');
+                    }
+
+                    this.input = { data: wav, name: file.name };
+
+                    statusDiv.innerHTML = `
+                        <div class="file-status status-success">
+                            ✓ ${file.name}<br>
+                            ${wav.sampleRate} Hz, ${wav.length} samples, 4 channels, ${wav.bitsPerSample}-bit
+                        </div>
+                    `;
+
+                    log(`Input loaded: ${wav.sampleRate} Hz, ${wav.length} frames`, 'success');
+                } catch (err) {
+                    this.input = null;
+                    statusDiv.innerHTML = `
+                        <div class="file-status status-error">
+                            ✗ Error: ${err.message}
+                        </div>
+                    `;
+                    log(`Error loading input: ${err.message}`, 'error');
+                }
+
+                this.updateButton();
+            }
+
+            updateButton() {
+                const btn = byId('convertButton');
+                const hasInput = !!this.input;
+                const sr = hasInput ? this.input.data.sampleRate : null;
+                const hasCal = hasInput && !!this.calibration[sr];
+
+                if (hasInput && hasCal && !this.processing) {
+                    btn.disabled = false;
+                    btn.textContent = 'Convert A-format to B-format';
+                } else if (hasInput && !hasCal) {
+                    btn.disabled = true;
+                    btn.textContent = `No calibration for ${sr} Hz`;
+                } else {
+                    btn.disabled = true;
+                    btn.textContent = 'Select input file and calibration';
+                }
+            }
+
+            async startConversion() {
+                if (this.processing) return;
+
+                this.processing = true;
+                this.updateButton();
+
+                // Reset progress + download
+                byId('downloadSection').style.display = 'none';
+                byId('downloadButton').style.display = 'none';
+                setProgress(5, 'Initializing...');
+
+                try {
+                    const B = await this.convert();
+                    setProgress(95, 'Preparing output WAV...');
+
+                    const buf = writeWAVPCM16(B, this.input.data.sampleRate);
+                    const blob = new Blob([buf], { type: 'audio/wav' });
+                    const url = URL.createObjectURL(blob);
+
+                    const baseName = this.input.name.replace(/\.[^/.]+$/, '') || 'output';
+                    const dl = byId('downloadButton');
+                    dl.href = url;
+                    dl.download = `${baseName}_B-format.wav`;
+                    dl.style.display = 'inline-flex';
+
+                    byId('downloadSection').style.display = 'block';
+                    setProgress(100, 'Conversion complete');
+                    log('Conversion completed successfully.', 'success');
+                } catch (err) {
+                    log(`Conversion failed: ${err.message}`, 'error');
+                    setProgress(100, 'Conversion failed');
+                } finally {
+                    this.processing = false;
+                    this.updateButton();
+                }
+            }
+
+            async convert() {
+                const input = this.input.data;
+                const sr = input.sampleRate;
+                const cal = this.calibration[sr];
+
+                setProgress(10, 'Parsing calibration...');
+
+                const irLen = Math.floor(cal.length / 4);
+                const A2B = Array.from({ length: 4 }, () => Array(4));
+
+                for (let b = 0; b < 4; b++) {
+                    const ch = cal.channelData[b];
+                    for (let a = 0; a < 4; a++) {
+                        const start = a * irLen;
+                        A2B[b][a] = ch.slice(start, start + irLen);
+                    }
+                }
+
+                const N = input.length;
+                const useFFT = byId('useFFT').checked;
+                const showAnalysis = byId('showAnalysis').checked;
+
+                const B = [
+                    new Float32Array(N),
+                    new Float32Array(N),
+                    new Float32Array(N),
+                    new Float32Array(N)
+                ];
+
+                const bNames = ['W', 'X', 'Y', 'Z'];
+                const aNames = ['LF', 'RF', 'LB', 'RB'];
+
+                if (useFFT) {
+                    log('Using FFT overlap-save convolution', 'info');
+                    setProgress(25, 'Precomputing spectra and convolving...');
+                    const out = a2bFFT(input.channelData, A2B);
+                    for (let i = 0; i < 4; i++) B[i] = out[i];
+                } else {
+                    log('Using time-domain convolution', 'info');
+                    setProgress(25, 'Convolving (time-domain)...');
+
+                    for (let b = 0; b < 4; b++) {
+                        setProgress(25 + b * 15, `TD: ${bNames[b]}...`);
+                        for (let a = 0; a < 4; a++) {
+                            const y = convolveSame(input.channelData[a], A2B[b][a]);
+                            const out = B[b];
+                            for (let i = 0; i < N; i++) {
+                                out[i] += y[i];
+                            }
+
+                            if (showAnalysis) {
+                                let peak = 0;
+                                const ir = A2B[b][a];
+                                for (let i = 0; i < ir.length; i++) {
+                                    const v = Math.abs(ir[i]);
+                                    if (v > peak) peak = v;
+                                }
+                                log(`  ${aNames[a]} → ${bNames[b]} IR peak ${peak.toFixed(5)}`, 'info');
+                            }
+                        }
+                    }
+                }
+
+                return B;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new BrahmaConverter();
+        });
+    </script>
+</body>
+</html>
