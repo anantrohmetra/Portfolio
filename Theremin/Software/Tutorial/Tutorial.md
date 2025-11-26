@@ -8,22 +8,22 @@ Note: We will be writing code in Supercolider & Arduino. A little bit of program
 
 List of components  
 1\. Raspberry pi 0 two w  
-2\. SD card (8 gb or above)  
+2\. SD card (16 gb or above)  
 3\. ESP32 Dev Kit Module  
-4\. Female to Female jumper wires  
-5\. VL53L0X time of flight sensrs x 2  
+4\. Female to female jumper wires  
+5\. VL53L0X time of flight sensors x 2  
 5\. OTG cable/converter  
 6\. USB A to micro USB cable x 2  
 7\. Computer 
-8\. 2x Heat Sink 
+8\. Heat Sink x 2
 
-On your computer download the raspberry pi imager from the raspberry pi official website. 
+On your computer download the raspberry pi imager from the official raspberry pi website. 
 
 [https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/)
 
 Select the Operating system of your computer. Now install the imager on your laptop. Connect an SD card to your laptop. Once your laptop reads the SD card open the Raspberry pi imager.
 
-Now we will put an Operating system on the SD card and later insert the SD card on the Raspberry pi. The SD card will help us run the operating system on the raspberry pi. We will also put the initial configuration for the raspberry pi on the SD card.
+Now we will put an Operating System on the SD card and later insert the SD card on the Raspberry pi. The SD card will help us run the operating system on the raspberry pi. We will also put the initial configuration for the raspberry pi on the SD card.
 
 Open the imager and choose the following options
 
@@ -31,14 +31,14 @@ Choose Device : Raspberry Pi zero 2 w
 Operating System : Raspberry Pi OS Lite (64 bit)  
 Choose Storage : "Select your SD Card"
 
-Now while in the settings section please put the information as below:
+Now in the settings section please put the information as below:
 
 ![Setup Screenshot](Images/image1.png)
 ![Network Setup](Images/image2.png)
 ![SSH Key](Images/image3.png)
 
 Tick set hostname   
-Fill in: pizero // this makes an alias for the IP address of the pi by the name of pizero.local
+Fill in: pizero // this makes an alias of the IP address of the pi by the name of pizero.local
 
 Fill username & password
 
@@ -55,21 +55,23 @@ Enable SSH and select public key authorization
 
 In the terminal of your computer run:
 
-cat \~/.ssh/id\_rsa.pub
+cd ~/.ssh/
+ls -al
+cat id_rsa.pub
 
 This will return your computer's SSH key. Copy and paste it in “set authorized key for username”
 
-In the options menu tick Eject media when finished and Enable telemetry.
+In the options menu tick Eject media when finished and enable telemetry.
 
 Save the settings and upload on the SD. Once the uploading is finished take out the SD card and insert it in the Raspberry pi. Power up the raspberry pi using a micro USB cable. It will take a minute for the pi to start. 
 
-Make sure your computer is connected to the same SSID as your pi. 
+Make sure your computer is connected to the same SSID as the raspberry pi pi. 
 
 Open the terminal in your laptop and run
 
-ssh [anant@pizero.local](mailto:anant@pizero.local) 
-
 the command has to be as follows ssh “username”@”hostname/IP address of your pi”
+
+ssh [anant@pizero.local](mailto:anant@pizero.local) 
 
 It might ask you for a password.
 
@@ -77,9 +79,19 @@ Now you can access the pi using your laptop.
 
 ![Terminal SSH](Images/image4.png)
 
-Now is a good time to solder the PCM5122 audio board onto the raspberry pi. You can reference the pin diagrams in the hardware section to make the right connections. There is also a picture of how the boards look once soldered. Once this is done place the heat sink on the raspberry pi 0 side which is exposed. Apply the heat sink as shown in the image heatsink placement. This will absorb the heat from the Raspberry pi.
+NOTE: If you are not able to SSH into the pi run the below commands
 
-After this you can connect the Time of Flight sensors to the ESP 32 Dev Module. Please refer to the diagram in the hardware section to make the connections.
+This command will list available wifi devices
+
+sudo nmcli device wifi list
+
+See which wifi your computer is connected to and SSH again
+
+sudo nmcli device wifi connect "SSID_NAME" password "YOUR_PASSWORD"
+
+Now is a good time to solder the PCM5122 audio board onto the raspberry pi. You can reference the pin diagrams in the hardware section to make the right connections. There is also a picture of how the boards look once soldered. Once this is done place the heat sink on the raspberry pi 0 side which is exposed. Apply the heat sink as shown in the image Raspberry-pi-Heat-Sink. This will absorb the heat from the Raspberry pi.
+
+After this you can connect the Time of Flight sensors to the ESP 32 Dev Module. Please refer to the ESP32->Sensors-circuit-diagram image in the hardware section and make the connections.
 
 Make the following connections from the ESP32 to the sensors:
 
@@ -103,7 +115,7 @@ Now in your menu bar click on arduino, then go to settings. In the Additional Bo
 
 [https://espressif.github.io/arduino-esp32/package\_esp32\_index.json](https://espressif.github.io/arduino-esp32/package_esp32_index.json)
 
-Now in your menubar click on tools. In the dropdown menu, click on boards and select “ESP32 dev module”. After that in the same dropdown menu click on port and select the port for your esp32. Make sure in the dropdown menu that upload speed is selected at 230400hz.
+Now in your menubar click on tools. In the dropdown menu, click on boards and select “ESP32 dev module”. After that in the same dropdown menu click on port and select the port for your esp32. Make sure in the dropdown menu that upload speed is selected at 230400hz. Select port similar to "/dev/cu.usbserial-0001"
 
 Now we need to write code in order to read both the VL53L0X sensors. You can refer to the code in the ESP32.ino  file for the code. Now you need to build and upload the code using the right arrow button on your arduino IDE \-\>. Once the build and upload is done you can check the values in serial print.
 
@@ -125,51 +137,28 @@ Raspberry pi needs the codec and kernel modules of the PCM5122 board in order to
 
 Clone the below github repo using the command below to your raspberry pi.
 
-git clone https://github.com/raspberrypi/linux.git
+sudo apt update
+sudo apt install git -y
 
-Then navigate to the overlays:
+git clone --depth=1 https://github.com/raspberrypi/firmware.git
 
-cd linux/arch/arm/boot/dts/overlays
+Assuming you cloned the firmware repo into ~/firmware:
 
-From there copy the relevant overlays to your Debian /boot/overlays directory:
+cd ~/firmware/boot/overlays
 
-sudo cp iqaudio-dacplus.dtbo /boot/overlays/  
-sudo cp hifiberry-dac.dtbo /boot/overlays/
+Check files:
 
-make a directory to store the overlays
+ls iqaudio* hifiberry*
 
-sudo mkdir \-p /boot/overlays
+Now copy:
 
-Copy the missing PCM5122 codec kernel modules because Debian did not ship these
-
-snd-soc-pcm512x.ko
-
-snd-soc-pcm512x-i2c.ko
-
-snd-soc-iqaudio-dac.ko
-
-Now download the codecs from the same repository
-
-cd \~/linux/sound/soc/codecs
-
-Then copy them into your Debian kernel module directory:
-
-sudo cp pcm512x.ko /lib/modules/$(uname \-r)/kernel/sound/soc/codecs/  
-sudo cp pcm512x-i2c.ko /lib/modules/$(uname \-r)/kernel/sound/soc/codecs/
-
-(And for some boards:)
-
-sudo cp snd-soc-iqaudio-dac.ko /lib/modules/$(uname \-r)/kernel/sound/soc/bcm/
-
-3\. Now run depmod to update kernel module list
-
-sudo depmod \-a
+sudo cp iqaudio-dacplus.dtbo /boot/overlays/
 
 4\. Add the overlay manually to Debian’s /boot/firmware/config.txt
 
 Open the config file so that we can configure the codec, enable I2c and I2s. This will enable the pi to speak to the ESP32 and send out audio from the PCM5122 board
 
-sudo nano /boot/config.txt or sudo nano /boot/firmware/config.txt
+ sudo nano /boot/firmware/config.txt
 
 Now in the config file make the following changes. You can also refer to the config.txt file in the repository.
 
@@ -204,9 +193,14 @@ sudo reboot
 
 After reboot the config settings have been enabled. 
 
+
+To verify run:
+
+lsmod | grep iqaudio
+
 Now list out the USB devices connected to the Pi using the below command
 
-ls /dev/ttyUSB\*
+ls /dev/ttyUSB*
 
 It should return something like:
 

@@ -9,4 +9,4 @@ Software/Tutorial: A step-by-step walkthrough that guides you through building a
 
 Hardware
 
-The hardware section includes detailed images of all components used in the project, along with pin diagrams and circuit schematics to support accurate wiring and assembly.
+The hardware section includes detailed images of all components used in the project, along with pin diagrams and circuit schematics to support accurate wiring and assembly. 
