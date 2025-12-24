@@ -12,11 +12,15 @@ NOTE: This might be difficult to achieve practically because of physical contrai
 
 The maximum pitch when the distance is 350 mm is 2000 hz.
 
+The default freq when there is no hand it should be 440hz
+
 Amplitude Range
 
 At a distance of 0 mm the amplitude will be bare minimum and close to silent.
 
 At a distnace of 350 mm the amplitude will be maximum.
+
+The default amplitude when there is no hand it should be maximum
 
 If you are not able to detect the longer distances then below might be causing it.
 
@@ -114,4 +118,12 @@ Example:
 50 ms budget → ~20 Hz max
 
 You get longer distance, but slower reaction time
+
+PYTHON SCRIPT BRIDGE
+
+The python bridge script is important because Supercollider does not read BAUD RATES above 203400.
+
+At 203400, ESP32 prints serial data with noise causing irregularitories.
+
+So, we wrote a python script to input the serial data 406800 and send the input data as an OSC message to over the serial port 57120
 

@@ -1,8 +1,11 @@
 
 // Open your serial port (adjust the device path if needed)
+s.boot;
+
+{SinOsc.ar(440,0,0.5)}.play;
 
 (
-~pot = SerialPort.new("/dev/ttyUSB0", 115200);
+~pot = SerialPort.new("/dev/cu.usbserial-0001", 230400);
 )
 
 // ---- Shared state for two sensors ----
@@ -13,6 +16,7 @@
 ~t1 = nil;    // timestamp of #1 update
 ~t2 = nil;    // timestamp of #2 update
 )
+
 
 (
 // Parser working vars
@@ -59,7 +63,7 @@
             });
         });
 
-        0.005.wait; // faster tick
+        0.0005.wait; // faster tick
     });
 }).play;
 )
@@ -71,8 +75,9 @@ SynthDef(\tofSine, { |out = 0, freq = 440, amp = 0|
     var base, base2, base3, mod, sig;
 
     // Same smoothing and clamping as before
-    f = Lag.kr(freq.clip(100, 1000), 0.10);   // smooth pitch
-    a = Lag.kr(amp.clip(0, 1), 0.10);         // smooth amplitude
+    f = Lag.kr(freq.clip(100, 1000), 0.10);
+    a = Lag.kr(amp.clip(0, 0.7), 0.10);
+      // smooth amplitude
 
     // Your theremin-ish core, now using `f`
     base  = SinOsc.ar(f);
@@ -99,31 +104,15 @@ SynthDef(\tofSine, { |out = 0, freq = 440, amp = 0|
 
 ~sine = Synth(\tofSine, [\freq, 440, \amp, 0.5]);
 
-
 (
-~ctrl = Routine({
-    var d1, d2, freq, amp;
-
-    inf.do({
-        d1 = ~d1;
-        d2 = ~d2;
-        freq = if(d1.isNil, {
-            880
-        }, {
-            d1.linlin(30, 400, 100, 1000).clip(100, 1000)
-        });
-
-        amp = if(d2.isNil, {
-            0.7
-        }, {
-            d2.linlin(200, 400, 0.7, 0).clip(0, 0.7)
-        });
-
-
-
-        ~sine.set(\freq, freq, \amp, amp);
-
-        0.0001.wait; // ~50 Hz
-    });
+~ctrl = Routine({ var d1, d2, freq, amp;
+	inf.do({ d1 = ~d1; d2 = ~d2;
+	freq = if(d1.isNil, { 880 }, { d1.linlin(30, 400, 100, 1000).clip(100, 1000) });
+	amp = if(d2.isNil, { 0.7 }, { d2.linlin(50, 300, 0.7, 0).clip(0, 0.7) });
+	~sine.set(\freq, freq, \amp, amp);
+	0.0001.wait; // ~50 Hz
+});
 }).play;
 )
+
+s.freeAll;
