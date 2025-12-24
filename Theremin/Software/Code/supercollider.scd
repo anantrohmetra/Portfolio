@@ -14,71 +14,56 @@
 ~t2 = nil;    // timestamp of #2 update
 )
 
-
-
 (
 // Parser working vars
 ~buf  = List.new;  // collects digits
 ~sawN = false;     // true after 'N' (for "Na"/"Nb")
 )
 
-
-
-// ---- Reader Routine ----
+// 222222222---- Reader Routine ----
 // Expects Arduino to print e.g. "523a612b\n", or "Na"/"Nb" for out-of-range
 (
 ~reader = Routine({
     var byte, ch, val;
 
     inf.do({
-        byte = ~pot.read; // returns -1 if nothing available
-        if(byte >= 0, {
+        // read EVERYTHING available right now
+        while({ (byte = ~pot.read) >= 0 }, {
             ch = byte.asAscii;
 
             if(ch.isDecDigit, {
                 ~buf.add(ch.digit);
                 ~sawN = false;
             }, {
-                // Mark out-of-range
-                if(ch == $N, {
-                    ~buf = List.new;
-                    ~sawN = true;
-                });
+                if(ch == $N, { ~buf = List.new; ~sawN = true; });
 
-                // Sensor #1 terminator
                 if(ch == $a, {
-                    if(~sawN, {
-                        ~d1 = nil;
-                    }, {
-                        if(~buf.size > 0, {
+                    if(~sawN) { ~d1 = nil } {
+                        if(~buf.size > 0) {
                             val = ~buf.asArray.convertDigits;
                             ~d1 = val; ~t1 = Main.elapsedTime;
-                        });
-                    });
+                        }
+                    };
                     ~buf = List.new; ~sawN = false;
                 });
 
-                // Sensor #2 terminator
                 if(ch == $b, {
-                    if(~sawN, {
-                        ~d2 = nil;
-                    }, {
-                        if(~buf.size > 0, {
+                    if(~sawN) { ~d2 = nil } {
+                        if(~buf.size > 0) {
                             val = ~buf.asArray.convertDigits;
                             ~d2 = val; ~t2 = Main.elapsedTime;
-                        });
-                    });
+                        }
+                    };
                     ~buf = List.new; ~sawN = false;
                 });
-
-                // ignore newlines / others silently
             });
         });
 
-        0.0001.wait; // gentle polling
+        0.005.wait; // faster tick
     });
 }).play;
 )
+
 
 (
 SynthDef(\tofSine, { |out = 0, freq = 440, amp = 0|
@@ -113,37 +98,6 @@ SynthDef(\tofSine, { |out = 0, freq = 440, amp = 0|
 
 
 ~sine = Synth(\tofSine, [\freq, 440, \amp, 0.5]);
-
-
-(
-~ctrl = Routine({
-    var d1, d2, freq, amp;
-
-    inf.do({
-        d1 = ~d1;  // sensor #1
-        d2 = ~d2;  // sensor #2
-
-        // pitch from d1
-        freq = if(d1.isNil, { 440 }, {
-            d1.linlin(30, 400, 100, 1000).clip(100, 1000)
-        });
-
-        // amplitude from d2:
-        // d2 = 30  -> amp = 0.7 (max)
-        // d2 = 400 -> amp = 0   (min)
-        amp = if(d2.isNil, { 0 }, {
-            d2.linlin(200, 400, 0.7, 0).clip(0, 0.7)
-        });
-
-        // If freq source is nil, also mute
-        if(d1.isNil) { amp = 0 };
-
-        ~sine.set(\freq, freq, \amp, amp);
-        0.0001.wait; // ~50 Hz updates
-    });
-}).play;
-)
-
 
 
 (
