@@ -1,3 +1,23 @@
+DISTANCE & PITCH CONFIGURATION
+
+These configurations are based on Leo Theremin's original design
+
+the right hand controls the pitch (the musical note), and the left hand controls the volume
+
+Frequency Range
+
+The minimum value of the pitch is 0 hz when the distance between the sensor and the hand is 0mm. 
+
+NOTE: This might be difficult to achieve practically because of physical contraints.
+
+The maximum pitch when the distance is 350 mm is 2000 hz.
+
+Amplitude Range
+
+At a distance of 0 mm the amplitude will be bare minimum and close to silent.
+
+At a distnace of 350 mm the amplitude will be maximum.
+
 If you are not able to detect the longer distances then below might be causing it.
 
 1️⃣ What the VL53L0X actually does (internally)
