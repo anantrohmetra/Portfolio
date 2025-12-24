@@ -16,7 +16,7 @@
 ~defaultFreqNoHand = 440;
 
 ~ampMin = 0.001;
-~ampMax = 0.8;
+~ampMax = 0.6;
 ~defaultAmpNoHand = ~ampMax;
 
 ~deadbandHz = 0.8;
@@ -55,77 +55,4 @@ s.waitForBoot({
 
     s.sync;
 
-    if(~ctrl.notNil) { ~ctrl.stop; };
-    if(~sine.notNil) { ~sine.free; };
-
-    ~sine = Synth(\tofTheremin, [
-        \freq, ~defaultFreqNoHand,
-        \amp,  ~defaultAmpNoHand,
-        \lagUp, ~lagUp,
-        \lagDown, ~lagDown
-    ]);
-
-    ~lastFreq = ~defaultFreqNoHand;
-    ~lastGoodD1 = nil;
-
-    ~ctrl = Routine({
-        var d1raw, d2, d1use, norm, octMax, oct, targetFreq, diff, freq, amp;
-
-        octMax = log2(~pitchAt400mm / 1.0);
-
-        inf.do({
-            d1raw = ~d1;
-            d2    = ~d2;
-
-            d1use = d1raw;
-
-            if(d1raw == ~noHand) {
-                d1use = ~noHand;
-            }{
-                if(~lastGoodD1.notNil and: { ((~lastGoodD1 - d1raw).abs > ~maxDropMM) }) {
-                    d1use = ~lastGoodD1;
-                };
-
-                if(d1use < ~minValidPitchMM) {
-                    d1use = (~lastGoodD1.isNil).if({ ~noHand }, { ~lastGoodD1 });
-                };
-            };
-
-            if(d1use != ~noHand) { ~lastGoodD1 = d1use; };
-
-            targetFreq = (d1use == ~noHand).if({
-                ~defaultFreqNoHand
-            },{
-                norm = d1use.clip(~dPitchMin, ~dPitchMax).linlin(~dPitchMin, ~dPitchMax, 0.0, 1.0);
-                oct  = (norm * octMax);
-                targetFreq = (1.0 * (2 ** oct)).clip(~pitchAt0mm, ~pitchAt400mm);
-                if(d1use <= 1) { targetFreq = 0.0 };
-                targetFreq
-            });
-
-            diff = targetFreq - ~lastFreq;
-
-            freq = (diff.abs < ~deadbandHz).if(
-                ~lastFreq,
-                ~lastFreq + diff.clip(0 - ~maxStepHz, 0 + ~maxStepHz)
-            );
-
-            ~lastFreq = freq;
-
-            amp = (d2 == ~noHand).if({
-                ~defaultAmpNoHand
-            },{
-                d2.clip(~dAmpMin, ~dAmpMax)
-                  .linlin(~dAmpMin, ~dAmpMax, ~ampMin, ~ampMax)
-                  .clip(~ampMin, ~ampMax)
-            });
-
-            ~sine.set(\freq, freq, \amp, amp);
-
-            ~dt.wait;
-        });
-    }).play;
-
-    "Theremin running.".postln;
-});
-)
+)); "Theremin running.".postln;eq, \amp, amp);~ampMin, ~ampMax)tepHz)tchAt400mm);tchMax, 0.0, 1.0);
